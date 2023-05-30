@@ -1,0 +1,104 @@
+//Here is the Code that is uploaded on the Arduino to control the robot through smartphone.
+//Bluetooth was used to transmit and receive the signals.
+
+#include<AFMotor.h>
+#include<Servo.h>
+
+char val;
+Servo servo1; //Gripper : to hold the small object
+Servo servo2;  //lifter : to lift up or down the small object 
+
+//defining the motors
+AF_DCMotor M1(1);
+AF_DCMotor M2(2);
+AF_DCMotor M3(3);
+AF_DCMotor M4(4);
+
+//Setup
+void setup(){
+  Serial.begin(9600);
+  servo1.attach(10); 
+  servo2.attach(9); //Servo is at 10th pin
+  M1.setSpeed(200);
+  M2.setSpeed(200);
+  M3.setSpeed(200);
+  M4.setSpeed(200);
+}
+
+
+void loop(){
+    if(Serial.available()){ //if signal is present, further code will be executed
+    val = Serial.read();
+
+        if(val=='U'){        //Move forward
+              M1.run(FORWARD);  
+              M2.run(FORWARD);
+              M3.run(FORWARD);
+              M4.run(FORWARD);
+              Serial.println(val);
+        }
+   
+        else if(val == 'D'){      //move backward
+              M1.run(BACKWARD);  
+              M2.run(BACKWARD);
+              M3.run(BACKWARD);
+              M4.run(BACKWARD);
+               Serial.println(val);
+        }
+    
+        else if(val =='R'){    //turn right
+              M1.run(FORWARD);  
+              M2.run(BACKWARD);
+              M3.run(BACKWARD);
+              M4.run(FORWARD);
+              Serial.println(val);
+        }
+     
+        else if(val == 'L'){    //turn left
+              M1.run(BACKWARD);  
+              M2.run(FORWARD);
+              M3.run(FORWARD);
+              M4.run(BACKWARD);
+               Serial.println(val);
+        }
+                 // ARM CONTROL
+        else if(val == 'E'){  //opening the jaw/gripper
+            for(int pos = 0 ; pos<=75 ; pos++){
+            servo1.write(pos);
+            delay(10);
+            }
+            Serial.println(val);
+        }
+
+        else if(val == 'G'){  //closing the jaw/gripper
+          for(int pos = 75 ; pos>=0 ; pos--){
+            servo1.write(pos);
+            delay(10);
+        }
+        Serial.println(val);
+        }    
+        else if(val == 'A'){  //lifting the load up
+          for(int pos = 0 ; pos<=120 ; pos++){
+            servo2.write(pos);
+            delay(10);
+           
+          }
+           Serial.println(val);
+        }   
+        else if(val == 'C'){  //puts the load down  
+          for(int pos = 120 ; pos>=0 ; pos--){
+             servo2.write(pos);
+             delay(10);
+            
+          }
+            Serial.println(val);
+        }   
+        else if (val=='S') { //stop all activity of the motors
+                M1.run(RELEASE);  
+              M2.run(RELEASE);
+              M3.run(RELEASE);
+              M4.run(RELEASE);
+               Serial.println(val);
+        }
+    }
+}
